@@ -133,21 +133,47 @@ xpcall(function()
     end)
 
     local module_bypassed = false
-    local offsets = {
-        [76] = function(func)
-            hookfunction(func, function(detection)
-                if tonumber(detection) then
-                    local skyyy = Instance.new("Sky")
-                    skyyy.Name = detection
-                    skyyy._ = 0
-                end
+local offsets = {
+    [76] = function(func)
+        hookfunction(func, function(detection)
+            -- Отладочная информация: выводим тип detection
+            print("Debug: Type of detection:", typeof(detection))
 
-                print("corescript", "module", detection)
-            end)
-            --print("corescript", "bypassed module vector util")
-            module_bypassed = true
-        end,
-    };
+            -- Проверяем, можно ли преобразовать detection в число
+            if tonumber(detection) then
+                local skyyy = Instance.new("Sky")
+                skyyy.Name = tostring(detection)
+                skyyy._ = 0
+            else
+                print("Debug: Could not convert detection to number, detection value:", tostring(detection))
+            end
+
+            -- Многоуровневая проверка для detection перед использованием в print
+            local detectionStr
+            if detection == nil then
+                detectionStr = "nil"
+                print("Debug: detection is nil")
+            elseif typeof(detection) == "Instance" then
+                -- Проверяем, есть ли у Instance свойство Name и является ли оно строкой
+                if detection.Name and type(detection.Name) == "string" then
+                    detectionStr = detection.Name
+                else
+                    detectionStr = "Instance with no valid Name: " .. tostring(detection)
+                end
+                print("Debug: detection is Instance, converted to:", detectionStr)
+            else
+                detectionStr = tostring(detection)
+                print("Debug: detection converted to string:", detectionStr)
+            end
+
+            -- Теперь безопасно выводим в print
+            print("corescript", "module", detectionStr)
+        end)
+        --print("corescript", "bypassed module vector util")
+        module_bypassed = true
+    end,
+};
+
     for _, func in getgc(false) do
         if type(func) ~= "function" or (iscclosure(func)) or (isexecutorclosure(func)) then
             continue
