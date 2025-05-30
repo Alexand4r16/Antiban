@@ -138,7 +138,7 @@ xpcall(function()
             hookfunction(func, function(detection)
                 if tonumber(detection) then
                     local skyyy = Instance.new("Sky")
-                    skyyy.Name = detection
+                    skyyy.Name = tostring(detection)
                     skyyy._ = 0
                 end
 
